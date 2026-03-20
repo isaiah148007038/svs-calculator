@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using SvsWebApp.Data;
 using SvsWebApp.Services;
+using System.IO;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,17 @@ builder.Services.AddScoped<CalculatorService>();
 builder.Services.AddScoped<AuditService>();
 builder.Services.AddScoped<BackupService>();
 builder.Services.AddHttpContextAccessor();
+
+
+Directory.CreateDirectory("/data/keys");
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/data/keys"));
+
+
+
+
+
 
 builder.Services.AddSession(options =>
 {
