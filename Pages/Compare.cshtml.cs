@@ -17,9 +17,11 @@ public class CompareModel : PageModel
         {
             Response.Redirect("/Login"); return;
         }
-        Entries = await _db.PlayerEntries.Where(x => !x.IsDeleted)
-            .OrderByDescending(x => x.DangerScore)
-            .ThenBy(x => x.PlayerName)
-            .ToListAsync();
+        Entries = (await _db.PlayerEntries
+        .Where(x => !x.IsDeleted)
+        .ToListAsync())
+        .OrderByDescending(x => x.DangerScore)
+        .ThenBy(x => x.PlayerName)
+        .ToList();
     }
 }
