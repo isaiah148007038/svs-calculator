@@ -1,18 +1,47 @@
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore;
+using SvsWebApp.Data;
 using SvsWebApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
+builder.Services.Configure<FormOptions>(o =>
+{
+    o.MultipartBodyLengthLimit = 10 * 1024 * 1024;
+});
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                      ?? "Data Source=/data/players.db";
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(connectionString));
+
+builder.Services.AddSingleton<AuthService>();
+builder.Services.AddScoped<CalculatorService>();
+builder.Services.AddScoped<AuditService>();
+builder.Services.AddScoped<BackupService>();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromHours(12);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromHours(8);
 });
-builder.Services.AddSingleton<PlayerEntryStore>();
 
 var app = builder.Build();
+
+Directory.CreateDirectory("/data");
+Directory.CreateDirectory("/data/uploads");
+Directory.CreateDirectory("/data/backups");
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -22,57 +51,16 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider("/data/uploads"),
+    RequestPath = "/uploads"
+});
 app.UseRouting();
 app.UseSession();
-
-app.MapGet("/logout", (HttpContext context) =>
-{
-    context.Session.Clear();
-    return Results.Redirect("/");
-});
-
-app.Use(async (context, next) =>
-{
-    var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
-
-    var publicPaths = new[]
-    {
-        "/", "/index", "/adminlogin", "/error"
-    };
-
-    if (publicPaths.Contains(path) ||
-        path.StartsWith("/css") ||
-        path.StartsWith("/js") ||
-        path.StartsWith("/lib") ||
-        path.StartsWith("/favicon") ||
-        path.StartsWith("/uploads") ||
-        path.StartsWith("/_framework"))
-    {
-        await next();
-        return;
-    }
-
-    if (path.StartsWith("/admin"))
-    {
-        var isAdmin = context.Session.GetString("AdminAccess") == "granted";
-        if (!isAdmin)
-        {
-            context.Response.Redirect("/AdminLogin");
-            return;
-        }
-    }
-    else
-    {
-        var isAuthenticated = context.Session.GetString("AllianceAccess") == "granted" || context.Session.GetString("AdminAccess") == "granted";
-        if (!isAuthenticated)
-        {
-            context.Response.Redirect("/");
-            return;
-        }
-    }
-
-    await next();
-});
-
 app.MapRazorPages();
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+app.Urls.Add($"http://*:{port}");
+
 app.Run();

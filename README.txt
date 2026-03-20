@@ -1,28 +1,18 @@
-SVS Web App - Version 2
+SVS Web App v3
 
-What is new in v2:
-- Alliance login page
-- Separate admin login page
-- Calculator saves player entries
-- Optional screenshot upload and notes
-- Compare page for saved players
-- Admin dashboard with delete controls
-- Data stored in Data/players.json
-- Uploaded screenshots stored in wwwroot/uploads
+Main upgrades:
+- SQLite database at /data/players.db
+- Hidden alliance/admin codes in appsettings.json
+- Session-based login
+- Admin-only delete/restore/export
+- Soft delete instead of permanent delete
+- Audit log for saves/deletes/restores/logins
+- Screenshot upload path /data/uploads
+- Render-ready Dockerfile
 
-Default codes:
-- Alliance code: BRG225
-- Admin code: BRG225-ADMIN
-
-How to run locally:
-1. Install .NET 8 SDK
-2. Open a terminal in this folder
-3. Run: dotnet run
-4. Open the localhost URL shown in the terminal
-
-Or open SvsWebApp.csproj in Visual Studio and press F5.
-
-Important:
-- Screenshot uploads are saved, but this version does NOT auto-read stats from images yet.
-- Change the alliance and admin codes before public hosting.
-- For production, add a database and real user accounts later.
+Default deploy notes:
+1. In Render, add a Persistent Disk mounted to /data.
+2. Set Root Directory blank.
+3. Runtime: Docker.
+4. No build/start commands.
+5. Update appsettings.json codes before deploy.

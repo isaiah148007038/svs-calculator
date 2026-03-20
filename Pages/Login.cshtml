@@ -1,0 +1,13 @@
+@page
+@model SvsWebApp.Pages.LoginModel
+<div class="card" style="max-width:500px; margin:auto;">
+    <h2>Login</h2>
+    <p class="small">Enter your alliance code or admin code.</p>
+    @if (!string.IsNullOrWhiteSpace(Model.Message)) { <div class="err">@Model.Message</div> }
+    <form method="post">
+        <label>Access Code</label>
+        <input asp-for="Code" />
+        <br />
+        <button type="submit">Login</button>
+    </form>
+</div>

@@ -1,25 +1,25 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using SvsWebApp.Data;
 using SvsWebApp.Models;
-using SvsWebApp.Services;
 
 namespace SvsWebApp.Pages;
 
 public class CompareModel : PageModel
 {
-    private readonly PlayerEntryStore _store;
+    private readonly AppDbContext _db;
+    public CompareModel(AppDbContext db) => _db = db;
+    public List<PlayerEntry> Entries { get; set; } = new();
 
-    public CompareModel(PlayerEntryStore store)
+    public async Task OnGetAsync()
     {
-        _store = store;
-    }
-
-    public List<SavedPlayerEntry> Entries { get; set; } = new();
-
-    public void OnGet()
-    {
-        Entries = _store.GetAll()
-            .OrderByDescending(x => x.Result.DangerScore)
-            .ThenBy(x => x.Result.PlayerName)
-            .ToList();
+        if (HttpContext.Session.GetString("role") is not ("alliance" or "admin"))
+        {
+            Response.Redirect("/Login"); return;
+        }
+        Entries = await _db.PlayerEntries.Where(x => !x.IsDeleted)
+            .OrderByDescending(x => x.DangerScore)
+            .ThenBy(x => x.PlayerName)
+            .ToListAsync();
     }
 }

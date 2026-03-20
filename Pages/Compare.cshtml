@@ -1,67 +1,20 @@
 @page
-@model CompareModel
-@{
-    ViewData["Title"] = "Compare Players";
-}
-
+@model SvsWebApp.Pages.CompareModel
 <div class="card">
-    <div class="section-head">
-        <div>
-            <h1>Compare Saved Players</h1>
-            <p class="muted">Sorted by highest SVS Danger Score first.</p>
-        </div>
-        <div class="button-row no-top">
-            <a class="button secondary" href="/Calculator">Add Player</a>
-        </div>
-    </div>
-
-    @if (!Model.Entries.Any())
-    {
-        <p class="muted">No saved players yet.</p>
-    }
-    else
-    {
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Player</th>
-                        <th>Submitted By</th>
-                        <th>Danger</th>
-                        <th>Threat</th>
-                        <th>Total Power</th>
-                        <th>Total Kills</th>
-                        <th>Combat Density</th>
-                        <th>Fake Power</th>
-                        <th>Screenshot</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var entry in Model.Entries)
-                {
-                    <tr>
-                        <td>@(string.IsNullOrWhiteSpace(entry.Result.PlayerName) ? "Unnamed" : entry.Result.PlayerName)</td>
-                        <td>@(string.IsNullOrWhiteSpace(entry.SubmittedBy) ? "-" : entry.SubmittedBy)</td>
-                        <td>@entry.Result.DangerScore.ToString("F2")</td>
-                        <td>@entry.Result.ThreatLabel</td>
-                        <td>@entry.Input.TotalPower</td>
-                        <td>@entry.Input.TotalKills</td>
-                        <td>@entry.Result.CombatDensity.ToString("F4")</td>
-                        <td>@entry.Result.FakePower.ToString("P2")</td>
-                        <td>
-                            @if (!string.IsNullOrWhiteSpace(entry.ScreenshotPath))
-                            {
-                                <a href="@entry.ScreenshotPath" target="_blank">Open</a>
-                            }
-                            else
-                            {
-                                <span>-</span>
-                            }
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    }
+    <h2>Saved Players</h2>
+    <table>
+        <thead><tr><th>Name</th><th>Danger</th><th>Threat</th><th>Created</th><th>Notes</th></tr></thead>
+        <tbody>
+        @foreach (var e in Model.Entries)
+        {
+            <tr>
+                <td>@e.PlayerName</td>
+                <td>@e.DangerScore.ToString("F2")</td>
+                <td>@e.ThreatLabel</td>
+                <td>@e.CreatedUtc.ToString("u")</td>
+                <td>@e.Notes</td>
+            </tr>
+        }
+        </tbody>
+    </table>
 </div>

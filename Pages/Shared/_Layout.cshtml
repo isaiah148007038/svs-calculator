@@ -3,26 +3,21 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BRG SVS Tools</title>
+    <title>SVS Calculator</title>
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
     <header class="topbar">
-        <div class="wrap topbar-inner">
-            <div>
-                <div class="brand">BRG SVS Tools</div>
-                <div class="subbrand">Calculator · Saved players · Compare · Admin</div>
-            </div>
-            <nav>
-                <a href="/Calculator">Calculator</a>
-                <a href="/Compare">Compare</a>
-                <a href="/Admin">Admin</a>
-                <a href="/logout">Logout</a>
-            </nav>
-        </div>
+        <div><strong>SVS Calculator v3</strong></div>
+        <nav>
+            <a asp-page="/Index">Home</a>
+            <a asp-page="/Compare">Compare</a>
+            <a asp-page="/Admin">Admin</a>
+            <a asp-page="/Login">Login</a>
+            <a asp-page="/Logout">Logout</a>
+        </nav>
     </header>
-
-    <main class="wrap">
+    <main class="container">
         @RenderBody()
     </main>
 </body>

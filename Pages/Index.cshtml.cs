@@ -1,38 +1,91 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SvsWebApp.Data;
 using SvsWebApp.Models;
+using SvsWebApp.Services;
 
 namespace SvsWebApp.Pages;
 
 public class IndexModel : PageModel
 {
-    private const string AllianceCode = "BRG225";
+    private readonly CalculatorService _calc;
+    private readonly AppDbContext _db;
+    private readonly AuditService _audit;
+    private readonly BackupService _backup;
 
-    [BindProperty]
-    public CalculatorInput Input { get; set; } = new();
-
-    public string ErrorMessage { get; set; } = string.Empty;
-
-    public IActionResult OnGet()
+    public IndexModel(CalculatorService calc, AppDbContext db, AuditService audit, BackupService backup)
     {
-        if (HttpContext.Session.GetString("AdminAccess") == "granted")
-            return RedirectToPage("/Admin");
-
-        if (HttpContext.Session.GetString("AllianceAccess") == "granted")
-            return RedirectToPage("/Calculator");
-
-        return Page();
+        _calc = calc; _db = db; _audit = audit; _backup = backup;
     }
 
-    public IActionResult OnPost()
+    [BindProperty] public PlayerInputModel Input { get; set; } = new();
+    public string Message { get; set; } = "";
+    public string Error { get; set; } = "";
+    public PlayerEntry? LastSaved { get; set; }
+
+    public void OnGet()
     {
-        if (string.Equals(Input.AccessCode?.Trim(), AllianceCode, StringComparison.Ordinal))
+        if (!IsLoggedIn()) Response.Redirect("/Login");
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (!IsLoggedIn()) return RedirectToPage("/Login");
+        try
         {
-            HttpContext.Session.SetString("AllianceAccess", "granted");
-            return RedirectToPage("/Calculator");
-        }
+            var totalPower = _calc.ParseValue(Input.TotalPower);
+            var totalKills = _calc.ParseValue(Input.TotalKills);
+            var techPower = _calc.ParseValue(Input.TechPower);
+            var heroPower = _calc.ParseValue(Input.HeroPower);
+            var troopPower = _calc.ParseValue(Input.TroopPower);
+            var structurePower = _calc.ParseValue(Input.StructurePower);
+            var modVehiclePower = _calc.ParseValue(Input.ModVehiclePower);
+            var result = _calc.Compute(totalPower, totalKills, techPower, heroPower, troopPower, structurePower, modVehiclePower);
 
-        ErrorMessage = "Wrong alliance code.";
+            string path = "";
+            if (Input.Screenshot is { Length: > 0 })
+            {
+                var fileName = $"{Guid.NewGuid()}-{Path.GetFileName(Input.Screenshot.FileName)}";
+                var fullPath = Path.Combine("/data/uploads", fileName);
+                using var stream = System.IO.File.Create(fullPath);
+                await Input.Screenshot.CopyToAsync(stream);
+                path = $"/uploads/{fileName}";
+            }
+
+            _backup.CreateBackup();
+            var entry = new PlayerEntry
+            {
+                PlayerName = Input.PlayerName,
+                TotalPower = totalPower,
+                TotalKills = totalKills,
+                TechPower = techPower,
+                HeroPower = heroPower,
+                TroopPower = troopPower,
+                StructurePower = structurePower,
+                ModVehiclePower = modVehiclePower,
+                Notes = Input.Notes,
+                ScreenshotPath = path,
+                CombatDensity = result.CombatDensity,
+                KillEfficiency = result.KillEfficiency,
+                TechReadiness = result.TechReadiness,
+                HeroLethality = result.HeroLethality,
+                TroopBias = result.TroopBias,
+                FakePower = result.FakePower,
+                DangerScore = result.DangerScore,
+                ThreatLabel = result.ThreatLabel
+            };
+            _db.PlayerEntries.Add(entry);
+            await _db.SaveChangesAsync();
+            await _audit.LogAsync("save", $"saved {entry.PlayerName}");
+            LastSaved = entry;
+            Message = "Saved successfully.";
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
         return Page();
     }
+
+    private bool IsLoggedIn() => HttpContext.Session.GetString("role") is "alliance" or "admin";
 }
