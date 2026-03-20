@@ -1,0 +1,64 @@
+@page
+@model AdminModel
+@{
+    ViewData["Title"] = "Admin";
+}
+
+<div class="grid admin-grid">
+    <section class="card">
+        <h1>Admin Dashboard</h1>
+        <div class="stats-grid">
+            <div class="stat-box"><span>Saved Players</span><strong>@Model.TotalPlayers</strong></div>
+            <div class="stat-box"><span>Extreme Threats</span><strong>@Model.ExtremeCount</strong></div>
+            <div class="stat-box"><span>High Threats</span><strong>@Model.HighCount</strong></div>
+            <div class="stat-box"><span>Uploads</span><strong>@Model.UploadCount</strong></div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <div class="success">@Model.Message</div>
+        }
+
+        <form method="post" asp-page-handler="DeleteAll" onsubmit="return confirm('Delete all saved players and screenshots?');">
+            <button type="submit" class="danger-button">Delete All Saved Data</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Saved Entries</h2>
+        @if (!Model.Entries.Any())
+        {
+            <p class="muted">No saved entries yet.</p>
+        }
+        else
+        {
+            <div class="admin-list">
+            @foreach (var entry in Model.Entries)
+            {
+                <div class="entry-card">
+                    <div class="entry-head">
+                        <strong>@(string.IsNullOrWhiteSpace(entry.Result.PlayerName) ? "Unnamed" : entry.Result.PlayerName)</strong>
+                        <span>@entry.Result.ThreatLabel · @entry.Result.DangerScore.ToString("F2")</span>
+                    </div>
+                    <div class="muted">Submitted by: @(string.IsNullOrWhiteSpace(entry.SubmittedBy) ? "-" : entry.SubmittedBy) · @entry.CreatedUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                    <div class="muted">Power: @entry.Input.TotalPower · Kills: @entry.Input.TotalKills</div>
+                    @if (!string.IsNullOrWhiteSpace(entry.Notes))
+                    {
+                        <div class="notes-box">@entry.Notes</div>
+                    }
+                    <div class="button-row no-top">
+                        @if (!string.IsNullOrWhiteSpace(entry.ScreenshotPath))
+                        {
+                            <a class="button secondary" href="@entry.ScreenshotPath" target="_blank">View Screenshot</a>
+                        }
+                        <form method="post" asp-page-handler="DeleteOne">
+                            <input type="hidden" name="id" value="@entry.Id" />
+                            <button type="submit" class="danger-button small">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            }
+            </div>
+        }
+    </section>
+</div>

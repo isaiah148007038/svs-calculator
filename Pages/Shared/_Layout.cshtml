@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BRG SVS Tools</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="wrap topbar-inner">
+            <div>
+                <div class="brand">BRG SVS Tools</div>
+                <div class="subbrand">Calculator · Saved players · Compare · Admin</div>
+            </div>
+            <nav>
+                <a href="/Calculator">Calculator</a>
+                <a href="/Compare">Compare</a>
+                <a href="/Admin">Admin</a>
+                <a href="/logout">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="wrap">
+        @RenderBody()
+    </main>
+</body>
+</html>

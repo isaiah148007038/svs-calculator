@@ -1,0 +1,26 @@
+@page
+@model AdminLoginModel
+@{
+    ViewData["Title"] = "Admin Login";
+}
+
+<div class="card narrow">
+    <h1>Admin Login</h1>
+    <p>Use the admin code to manage saved players, uploaded screenshots, and alliance data.</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="error">@Model.ErrorMessage</div>
+    }
+
+    <form method="post">
+        <label asp-for="AccessCode">Admin Code</label>
+        <input asp-for="AccessCode" placeholder="Enter admin code" />
+        <button type="submit">Enter Admin</button>
+    </form>
+
+    <div class="hint">
+        Default admin code in this starter app: <strong>BRG225-ADMIN</strong><br />
+        Change it later in <code>Pages/AdminLogin.cshtml.cs</code>.
+    </div>
+</div>

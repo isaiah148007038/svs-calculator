@@ -1,0 +1,29 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="card narrow">
+    <h1>Alliance Access</h1>
+    <p>Give your R4 and R5 members the alliance code. They can use the calculator, save players, upload screenshots, and compare results from any phone, tablet, or computer.</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="error">@Model.ErrorMessage</div>
+    }
+
+    <form method="post">
+        <label asp-for="Input.AccessCode">Alliance Code</label>
+        <input asp-for="Input.AccessCode" placeholder="Enter alliance code" />
+        <button type="submit">Enter Alliance Tools</button>
+    </form>
+
+    <div class="button-row">
+        <a class="button secondary" href="/AdminLogin">Admin Login</a>
+    </div>
+
+    <div class="hint">
+        Default alliance code: <strong>BRG225</strong>
+    </div>
+</div>
