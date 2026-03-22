@@ -34,15 +34,18 @@ builder.Services.AddDataProtection()
 
 
 
-
-
-
 builder.Services.AddSession(options =>
 {
+    options.Cookie.Name = "svs_session";
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.IdleTimeout = TimeSpan.FromHours(8);
 });
+
+
+
 
 var app = builder.Build();
 
