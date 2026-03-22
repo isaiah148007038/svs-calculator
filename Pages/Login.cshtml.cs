@@ -13,7 +13,13 @@ public class LoginModel : PageModel
     [BindProperty] public string Code { get; set; } = "";
     public string Message { get; set; } = "";
 
-    public void OnGet() { }
+    public void OnGet()
+    {
+        if (Request.Query.ContainsKey("expired"))
+        {
+            Message = "Your session expired. Please sign in again.";
+        }
+    }
 
     public async Task<IActionResult> OnPostAsync()
     {
