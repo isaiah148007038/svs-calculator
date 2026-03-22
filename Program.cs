@@ -84,8 +84,7 @@ app.Use(async (context, next) =>
     {
         context.Session.Clear();
 
-        context.Response.Cookies.Delete(".AspNetCore.Session");
-        context.Response.Cookies.Delete(".AspNetCore.Antiforgery");
+        context.Response.Cookies.Delete("svs_session");
         context.Response.Cookies.Delete("svs_antiforgery");
 
         context.Response.Redirect("/Login?expired=1");
@@ -94,10 +93,8 @@ app.Use(async (context, next) =>
     {
         context.Session.Clear();
 
-        context.Response.Cookies.Delete(".AspNetCore.Session");
-        context.Response.Cookies.Delete(".AspNetCore.Antiforgery");
+        context.Response.Cookies.Delete("svs_session");
         context.Response.Cookies.Delete("svs_antiforgery");
-
         context.Response.Redirect("/Login?expired=1");
     }
 });
