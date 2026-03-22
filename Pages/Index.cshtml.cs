@@ -88,15 +88,9 @@ public class IndexModel : PageModel
     }
 
     private bool IsLoggedIn()
-    {
-    try
-    {
-        return HttpContext.Session.GetString("role") is "alliance" or "admin";
-    }
-    catch
-    {
-        return false;
-    }
- }
+{
+    var role = HttpContext?.Session?.GetString("role");
+    return role == "alliance" || role == "admin";
+}
  }
 
