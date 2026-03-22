@@ -87,5 +87,15 @@ public class IndexModel : PageModel
         return Page();
     }
 
-    private bool IsLoggedIn() => HttpContext.Session.GetString("role") is "alliance" or "admin";
+    private bool IsLoggedIn()
+    {
+    try
+    {
+        return HttpContext.Session.GetString("role") is "alliance" or "admin";
+    }
+    catch
+    {
+        return false;
+    }
 }
+
