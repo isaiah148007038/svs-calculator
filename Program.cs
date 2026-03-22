@@ -71,6 +71,33 @@ app.UseStaticFiles(new StaticFileOptions
 });
 app.UseRouting();
 app.UseSession();
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Microsoft.AspNetCore.Antiforgery.AntiforgeryValidationException)
+    {
+        context.Session.Clear();
+
+        context.Response.Cookies.Delete(".AspNetCore.Session");
+        context.Response.Cookies.Delete(".AspNetCore.Antiforgery");
+        context.Response.Cookies.Delete("svs_antiforgery");
+
+        context.Response.Redirect("/Login?expired=1");
+    }
+    catch (System.Security.Cryptography.CryptographicException)
+    {
+        context.Session.Clear();
+
+        context.Response.Cookies.Delete(".AspNetCore.Session");
+        context.Response.Cookies.Delete(".AspNetCore.Antiforgery");
+        context.Response.Cookies.Delete("svs_antiforgery");
+
+        context.Response.Redirect("/Login?expired=1");
+    }
+});
 app.MapRazorPages();
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
