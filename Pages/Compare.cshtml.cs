@@ -13,10 +13,11 @@ public class CompareModel : PageModel
 
     public async Task OnGetAsync()
     {
-        if (HttpContext.Session.GetString("role") is not ("alliance" or "admin"))
-        {
-            Response.Redirect("/Login"); return;
-        }
+       if (!IsLoggedIn())
+{
+    Response.Redirect("/Login");
+    return;
+}
         Entries = (await _db.PlayerEntries
         .Where(x => !x.IsDeleted)
         .ToListAsync())
@@ -24,4 +25,16 @@ public class CompareModel : PageModel
         .ThenBy(x => x.PlayerName)
         .ToList();
     }
+    private bool IsLoggedIn()
+    {
+        try
+        {
+            return HttpContext.Session.GetString("role") is "alliance" or "admin";
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
 }
