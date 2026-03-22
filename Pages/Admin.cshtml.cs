@@ -97,5 +97,15 @@ public class AdminModel : PageModel
         Logs = await _db.AuditLogs.OrderByDescending(x => x.CreatedUtc).Take(100).ToListAsync();
     }
 
-    private bool IsAdmin() => HttpContext.Session.GetString("role") == "admin";
+    private bool IsAdmin() 
+        {
+    try
+    {
+        return HttpContext.Session.GetString("role") is "alliance" or "admin";
+    }
+    catch
+    {
+        return false;
+    }
 }
+
