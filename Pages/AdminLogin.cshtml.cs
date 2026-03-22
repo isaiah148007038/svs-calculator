@@ -5,7 +5,7 @@ namespace SvsWebApp.Pages;
 
 public class AdminLoginModel : PageModel
 {
-    private const string AdminCode = "BRG225-ADMIN";
+    private const string AdminCode = "Elmora1984";
 
     [BindProperty]
     public string AccessCode { get; set; } = string.Empty;
